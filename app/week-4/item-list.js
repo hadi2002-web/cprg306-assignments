@@ -1,16 +1,13 @@
 import Item from "./item";
-import items from "./items.json";
 
-export default function ItemList() {
+
+export default function ItemList({ items }) {
+
   return (
     <ul className="space-y-3">
       {items.map((item) => (
-        <Item
-          key={item.id}
-          name={item.name}
-          quantity={item.quantity}
-          category={item.category}
-        />
+       <Item key={item.id} {...item} />
+
       ))}
     </ul>
   );
