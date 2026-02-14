@@ -1,0 +1,249 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+hide empty methods
+hide circle
+'
+' Identity & Access
+
+package "Identity & Access" {
+
+  class User {
+    +userId: UUID
+    +name: String
+    +email: String
+    +passwordHash: String
+    +isActive: Boolean
+    +createdAt: DateTime
+  }
+
+  class Role {
+    +roleId: UUID
+    +name: String
+  }
+
+  User "0..*" -- "0..*" Role : assigned
+}
+
+
+' Organization Setup
+
+package "Organization Setup" {
+
+  class Organization {
+    +orgId: UUID
+    +name: String
+    +timezone: String
+  }
+
+  class Line {
+    +lineId: UUID
+    +name: String
+    +description: String
+  }
+
+  class Station {
+    +stationId: UUID
+    +name: String
+    +stationNumber: String
+  }
+
+  class Product {
+    +productId: UUID
+    +sku: String
+    +name: String
+  }
+
+  class ShiftPattern {
+    +shiftPatternId: UUID
+    +name: String
+    +startTime: Time
+    +endTime: Time
+    +isOvernight: Boolean
+  }
+
+  class Shift {
+    +shiftId: UUID
+    +shiftDate: Date
+    +startDateTime: DateTime
+    +endDateTime: DateTime
+    +shiftName: String
+  }
+
+  Organization "1" -- "0..*" Line
+  Line "1" -- "0..*" Station
+  Organization "1" -- "0..*" Product
+  Organization "1" -- "0..*" ShiftPattern
+  ShiftPattern "1" -- "0..*" Shift
+  Line "1" -- "0..*" Shift
+}
+
+' =========================
+' Ingestion & Validation
+' =========================
+package "Ingestion & Validation" {
+
+  class DataImport {
+    +importId: UUID
+    +importType: String
+    +sourceType: String
+    +fileName: String
+    +status: String
+    +createdAt: DateTime
+  }
+
+  class ValidationError {
+    +errorId: UUID
+    +rowNumber: Integer
+    +fieldName: String
+    +message: String
+  }
+
+  DataImport "1" -- "0..*" ValidationError
+  User "1" -- "0..*" DataImport : createdBy
+}
+
+' =========================
+' Operational Events
+' =========================
+package "Operational Events" {
+
+  class ProductionRecord {
+    +recordId: UUID
+    +timestamp: DateTime
+    +quantityProduced: Integer
+    +goodCount: Integer
+    +scrapCount: Integer
+    +cycleTimeSeconds: Decimal?
+  }
+
+  class DowntimeEvent {
+    +downtimeId: UUID
+    +startTime: DateTime
+    +endTime: DateTime
+    +durationMinutes: Decimal
+    +comment: String
+  }
+
+  class ScrapEvent {
+    +scrapEventId: UUID
+    +timestamp: DateTime
+    +quantityScrapped: Integer
+    +comment: String
+  }
+
+  class IncidentNote {
+    +noteId: UUID
+    +noteText: String
+    +suspectedCause: String
+    +actionTaken: String
+    +createdAt: DateTime
+  }
+
+  class ReasonCategory {
+    +categoryId: UUID
+    +name: String
+    +type: String
+    +isStandard: Boolean
+  }
+
+  class ReasonCode {
+    +reasonCodeId: UUID
+    +code: String
+    +description: String
+    +isActive: Boolean
+  }
+
+  ReasonCategory "1" -- "0..*" ReasonCode
+
+  ReasonCode "0..1" -- "0..*" DowntimeEvent
+  ReasonCode "0..1" -- "0..*" ScrapEvent
+
+  DowntimeEvent "0..1" -- "0..*" IncidentNote
+  ScrapEvent "0..1" -- "0..*" IncidentNote
+  User "1" -- "0..*" IncidentNote
+}
+
+' =========================
+' KPI & Reporting
+' =========================
+package "KPI & Reporting" {
+
+  class KPIDefinition {
+    +kpiId: UUID
+    +name: String
+    +formulaType: String
+    +isEnabled: Boolean
+    +configJson: String
+  }
+
+  class KPIResult {
+    +resultId: UUID
+    +periodStart: DateTime
+    +periodEnd: DateTime
+    +value: Decimal
+    +dimensionType: String
+    +dimensionId: UUID
+  }
+
+  class ReportExport {
+    +exportId: UUID
+    +exportType: String
+    +createdAt: DateTime
+    +filePath: String
+  }
+
+  Organization "1" -- "0..*" KPIDefinition
+  KPIDefinition "1" -- "0..*" KPIResult
+
+  User "1" -- "0..*" ReportExport
+  Shift "0..1" -- "0..*" ReportExport
+}
+
+' =========================
+' Alerts & Audit
+' =========================
+package "Alerts & Audit" {
+
+  class AlertRule {
+    +ruleId: UUID
+    +name: String
+    +metricName: String
+    +thresholdValue: Decimal
+    +timeWindowMinutes: Integer
+    +isEnabled: Boolean
+  }
+
+  class Notification {
+    +notificationId: UUID
+    +message: String
+    +createdAt: DateTime
+    +isRead: Boolean
+  }
+
+  class AuditLog {
+    +auditId: UUID
+    +action: String
+    +entityName: String
+    +entityId: UUID
+    +details: String
+    +timestamp: DateTime
+  }
+
+  AlertRule "0..1" -- "0..*" Notification
+  User "1" -- "0..*" Notification
+
+  User "1" -- "0..*" AuditLog
+  Organization "1" -- "0..*" AuditLog
+}
+
+' ======================================================
+' CLEAN LINKS (Layout helpers - do NOT show in diagram)
+' ======================================================
+Organization -[hidden]-> DataImport
+DataImport -[hidden]-> ProductionRecord
+ProductionRecord -[hidden]-> KPIDefinition
+KPIDefinition -[hidden]-> AlertRule
+
+@enduml

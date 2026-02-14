@@ -1,5 +1,5 @@
 import ItemList from "./item-list";
-import items from "./items.json";
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-black text-white p-6">
@@ -8,7 +8,7 @@ export default function Page() {
       </h1>
 
       <div className="max-w-md mx-auto">
-       <ItemList items={items} />
+        <ItemList />
       </div>
     </main>
   );
