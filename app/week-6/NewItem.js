@@ -4,24 +4,24 @@ import { useState } from "react";
 export default function NewItem({ onAddItem }) {
 
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState(1);
+   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState("produce");
 
-  function handleSubmit(e) {
+   function handleSubmit(e) {
     e.preventDefault();
 
     const item = {
-      id: crypto.randomUUID(),
+       id: crypto.randomUUID(),
       name: name,
       quantity: quantity,
-      category: category
+       category: category
     };
 
     onAddItem(item);
 
     setName("");
     setQuantity(1);
-    setCategory("produce");
+     setCategory("produce");
   }
 
   return (
@@ -29,16 +29,16 @@ export default function NewItem({ onAddItem }) {
 
       <input
         type="text"
-        value={name}
+         value={name}
         placeholder="Item name"
-        onChange={(e) => setName(e.target.value)}
+      onChange={(e) => setName(e.target.value)}
         required
       />
 
       <input
         type="number"
         value={quantity}
-        min="1"
+         min="1"
         onChange={(e) => setQuantity(e.target.value)}
       />
 
@@ -47,12 +47,12 @@ export default function NewItem({ onAddItem }) {
         onChange={(e) => setCategory(e.target.value)}
       >
         <option value="produce">Produce</option>
-        <option value="dairy">Dairy</option>
+         <option value="dairy">Dairy</option>
         <option value="bakery">Bakery</option>
         <option value="meat">Meat</option>
       </select>
 
-      <button type="submit">Add Item</button>
+       <button type="submit">Add Item</button>
 
     </form>
   );
