@@ -4,7 +4,7 @@ import { useState } from "react";
  import itemsData from "./items.json";
 import ItemList from "./ItemList";
  import NewItem from "./NewItem";
-import MealIdeas from "./MealIdeas";
+ import MealIdeas from "./mealdeas";
  export default function Page() {
 
   const [items, setItems] = useState(itemsData);
